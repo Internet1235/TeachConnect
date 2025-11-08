@@ -15,6 +15,7 @@ name: OpenWrt Builder
 on:
   repository_dispatch:
   workflow_dispatch:
+  push:
 
 env:
   TZ: Asia/Shanghai
@@ -47,7 +48,7 @@ jobs:
     - name: compile
       run:  |
         buildozer init
-        buildozer android debug
+        buildozer android debug | y
 
     - name: Upload apk directory
       uses: actions/upload-artifact@main
