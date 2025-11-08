@@ -1,6 +1,6 @@
 title = TeachConnect
 
-package.name = teachconnect
+package.name = com.teachconnect
 
 package.domain = org.teachconnect
 
