@@ -56,7 +56,6 @@ jobs:
         unzip -q android-ndk-r27d-linux.zip
         export ANDROIDSDK="./cmdline-tools/"
         export ANDROIDNDK="./android-ndk-r27d"
-        ./cmdline-tools/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "ndk;27.1.0"
 
     - name: Compile
       run:  |
