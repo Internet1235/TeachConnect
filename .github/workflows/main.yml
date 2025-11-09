@@ -59,7 +59,7 @@ jobs:
 
     - name: Compile
       run:  |
-        p4a apk --requirements=python3,kivy --private . --package=com.teachconnent --name "Teachconnent" --version 1.0 --bootstrap=sdl2 --arch=arm64-v8a
+        p4a apk --requirements=python3,kivy --private . --package=com.teachconnent --name "Teachconnent" --version 1.0 --bootstrap=webview --arch=arm64-v8a
 
     - name: Upload apk directory
       uses: actions/upload-artifact@main
