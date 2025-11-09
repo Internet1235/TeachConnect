@@ -48,7 +48,7 @@ jobs:
     - name: compile
       run:  |
         buildozer init
-        buildozer android debug -y
+        y | buildozer android debug
 
     - name: Upload apk directory
       uses: actions/upload-artifact@main
