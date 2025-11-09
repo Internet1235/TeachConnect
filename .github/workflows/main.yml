@@ -52,11 +52,11 @@ jobs:
       run: |
         wget -q https://googledownloads.cn/android/repository/commandlinetools-linux-13114758_latest.zip
         wget -q https://googledownloads.cn/android/repository/android-ndk-r27d-linux.zip
-        unzip commandlinetools-linux-13114758_latest.zip
-        unzip android-ndk-r27d-linux.zip
-        export ANDROIDSDK="./cmdline-tools/"
-        export ANDROIDNDK="./android-ndk-r27d"
-        ./cmdline-tools/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "ndk;27.1.0"
+        unzip -q commandlinetools-linux-13114758_latest.zip
+        unzip -q android-ndk-r27d-linux.zip
+        export ANDROIDSDK="./commandlinetools-linux-13114758_latest/cmdline-tools/"
+        export ANDROIDNDK="./android-ndk-r27d-linux/android-ndk-r27d"
+        ./commandlinetools-linux-13114758_latest/cmdline-tools/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "ndk;27.1.0"
 
     - name: Compile
       run:  |
