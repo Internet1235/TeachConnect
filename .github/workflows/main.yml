@@ -46,7 +46,7 @@ jobs:
 
     - name: Install python-for-android
       run: |
-        pip3 install python-for-android
+        pip3 install git+https://github.com/kivy/python-for-android.git
 
     - name: Download SDK and NDK
       run: |
