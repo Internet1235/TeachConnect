@@ -64,4 +64,4 @@ jobs:
       uses: actions/upload-artifact@main
       with:
         name: teachconnent
-        path: dist/*
+        path: /home/runner/.local/share/python-for-android/dists/unnamed_dist_1/build/outputs/apk/debug/unnamed_dist_1-debug.apk
