@@ -18,8 +18,6 @@ from kivy.clock import Clock
 from jnius import autoclass
 from android.permissions import request_permissions, Permission
 
-# 请求Android权限
-request_permissions([Permission.INTERNET, Permission.WRITE_EXTERNAL_STORAGE])
 
 # 获取应用目录
 if hasattr(App, 'get_running_app'):
