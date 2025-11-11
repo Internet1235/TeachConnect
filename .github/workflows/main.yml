@@ -49,7 +49,7 @@ jobs:
 
     - name: Compile
       run:  |
-        p4a apk --requirements=python3,kivy --private ./Tside --package=com.teachconnent --name "Teachconnent" --version 1.0 --bootstrap=sdl2 --icon ./Tside/img/TC-T.png --window --arch=arm64-v8a
+        p4a apk --requirements=python3,kivy,os,json,hashlib,socket,datetime,plyer,pygame --private ./Tside --package=com.teachconnent --name "Teachconnent" --version 1.0 --bootstrap=sdl2 --icon ./Tside/img/TC-T.png --window --arch=arm64-v8a --permission android.permission.WRITE_EXTERNAL_STORAGE
 
     - name: Upload apk directory
       uses: actions/upload-artifact@main
