@@ -44,7 +44,6 @@ jobs:
       run: |
         pip install git+https://github.com/kivy/python-for-android.git
         pip install setuptools
-        pip install git+https://github.com/konbraphat51/pygame.git@fix/compile
 
     - name: Download SDK and NDK
       run: |
@@ -56,7 +55,7 @@ jobs:
 
     - name: Compile
       run:  |
-        p4a apk --requirements=python3,kivy,os,json,hashlib,socket,datetime,plyer,pygame,setuptools --private ./Tside --package=com.teachconnent --name "Teachconnent" --version 1.0 --bootstrap=sdl2 --icon ./Tside/img/TC-T.png --window --arch=arm64-v8a --permission android.permission.WRITE_EXTERNAL_STORAGE
+        p4a apk --requirements=python3,kivy,os,json,hashlib,socket,datetime,plyer,setuptools --private ./Tside --package=com.teachconnent --name "Teachconnent" --version 1.0 --bootstrap=sdl2 --icon ./Tside/img/TC-T.png --window --arch=arm64-v8a --permission android.permission.WRITE_EXTERNAL_STORAGE
 
     - name: Upload apk directory
       uses: actions/upload-artifact@main

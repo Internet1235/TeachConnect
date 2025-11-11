@@ -12,7 +12,7 @@ import hashlib
 import socket
 import datetime
 from plyer import notification
-import pygame
+# import pygame
 
 running_path = os.path.dirname(os.path.abspath(__file__))
 print(running_path)
@@ -43,23 +43,23 @@ if weekday == 6:
     )
 
 # 初始化 pygame 的混音器
-try:
-    pygame.mixer.init()
-except Exception as e:
-    log_error(f"初始化混音器失败: {e}")
-    notification.notify(
-        title="发生错误（非致命错误）",
-        message=f"播放音频时发生错误: {e}，尝试连接音频设备以解决错误",
-        timeout=5
-    )
+#try:
+#    pygame.mixer.init()
+#except Exception as e:
+#    log_error(f"初始化混音器失败: {e}")
+#    notification.notify(
+#        title="发生错误（非致命错误）",
+#        message=f"播放音频时发生错误: {e}，尝试连接音频设备以解决错误",
+#        timeout=5
+#    )
 
 # 播放提示音
-def play_notification_sound():
-    try:
-        sound = pygame.mixer.Sound(f'{running_path}\\sound\\sound.mp3')
-        sound.play()
-    except Exception as e:
-        log_error(f"播放音频时发生错误: {e}")
+#def play_notification_sound():
+#    try:
+#        sound = pygame.mixer.Sound(f'{running_path}\\sound\\sound.mp3')
+#        sound.play()
+#    except Exception as e:
+#        log_error(f"播放音频时发生错误: {e}")
 
 # 设置调试模式，True为启用调试，False为禁用
 DEBUG_MODE = True
@@ -290,7 +290,7 @@ class MessagingScreen(BoxLayout):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect((ip, 11224))
                 s.sendall(data.encode("utf-8"))
-                play_notification_sound()
+#                play_notification_sound()
                 self.show_popup(
                     "发送成功",
                     "消息已成功发送\n由于纪律问题，目标计算机将在10秒后重新开启信息接收，"
