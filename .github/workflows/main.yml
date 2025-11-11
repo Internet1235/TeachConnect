@@ -42,8 +42,9 @@ jobs:
 
     - name: Install python-for-android
       run: |
-        pip3 install git+https://github.com/kivy/python-for-android.git
-        pip3 install setuptools
+        pip install git+https://github.com/kivy/python-for-android.git
+        pip install setuptools
+        pip install git+https://github.com/konbraphat51/pygame.git@fix/compile
 
     - name: Download SDK and NDK
       run: |
