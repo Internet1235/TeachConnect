@@ -35,6 +35,11 @@ jobs:
         distribution: 'oracle'
         java-version: '17'
 
+    - name: Setup Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+
     - name: Install python-for-android
       run: |
         pip3 install git+https://github.com/kivy/python-for-android.git
