@@ -64,8 +64,9 @@ if weekday == 6:
 # 设置调试模式，True为启用调试，False为禁用
 DEBUG_MODE = True
 
-# 设置存储路径
-APP_DATA_PATH = os.path.join(os.getenv("APPDATA"), "TConect")
+# 修复：优先使用 APPDATA，若为 None 则回退到 running_path（避免 Android 上的 None 导致 os.path.join 抛错）
+base_appdata = os.getenv("APPDATA") or running_path
+APP_DATA_PATH = os.path.join(base_appdata, "TConect")
 USER_DATA_PATH = os.path.join(APP_DATA_PATH, "User")
 LOG_PATH = os.path.join(APP_DATA_PATH, "log")
 CACHE_PATH = os.path.join(APP_DATA_PATH, "cache")
@@ -102,9 +103,15 @@ def log_message(ip, name, message):
     with open(log_file, "a", encoding="utf-8") as log:
         log.write(log_entry)
 
-# 注册支持中文的字体
-
-LabelBase.register(name='Roboto',fn_regular='./font/MiSans-Heavy.ttf')
+# 注册支持中文的字体（使用运行目录下的字体文件，注册前检查文件是否存在）
+try:
+    font_path = os.path.join(running_path, "font", "MiSans-Heavy.ttf")
+    if os.path.exists(font_path):
+        LabelBase.register(name='Roboto', fn_regular=font_path)
+    else:
+        debug_log(f"字体文件未找到: {font_path}，将使用默认字体")
+except Exception as e:
+    debug_log(f"注册字体失败: {e}")
 
 class LoginScreen(BoxLayout):
     def __init__(self, **kwargs):
