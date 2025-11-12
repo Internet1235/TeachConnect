@@ -25,7 +25,7 @@ jobs:
       run: |
         sudo -E apt-get -qq update
         sudo -E apt-get -qq upgrade
-        sudo -E apt-get install -y ant autoconf automake ccache cmake g++ gcc git lbzip2 libffi-dev libltdl-dev libtool libssl-dev make openjdk-17-jdk patch pkg-config python3 python3-dev python3-pip python3-venv python3-setuptools sudo unzip wget zip
+        sudo -E apt-get -qq install -y ant autoconf automake ccache cmake g++ gcc git lbzip2 libffi-dev libltdl-dev libtool libssl-dev make openjdk-17-jdk patch pkg-config python3 python3-dev python3-pip python3-venv python3-setuptools sudo unzip wget zip
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
 
@@ -42,32 +42,32 @@ jobs:
 
     - name: Install python-for-android
       run: |
-        pip install git+https://github.com/kivy/python-for-android.git
+        pip install git+https://github.com/Internet1235/python-for-android.git
         pip install setuptools
 
-    - name: Download SDK and NDK
-      run: |
-        wget -q https://googledownloads.cn/android/repository/commandlinetools-linux-13114758_latest.zip
-        wget -q https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
-        unzip -q commandlinetools-linux-13114758_latest.zip
-        export ANDROIDSDK="./cmdline-tools/"
-        export ANDROIDNDK="./android-ndk-r25c"
+    - name: Generate signing keys
+      run: echo ${{ secrets.SIGNING_KEY }} | base64 -d > sign_key.jks
 
     - name: Compile
+      env:
+        P4A_RELEASE_KEYSTORE: ${{ github.workspace }}/sign_key.jks
+        P4A_RELEASE_KEYSTORE_PASSWD: ${{ secrets.KEYSTORE_PASSWD }}
+        P4A_RELEASE_KEYALIAS: ${{ secrets.KEYALIAS }}
+        P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.KEYALIAS_PASSWD }}
       run:  |
-        p4a apk --requirements=python3,kivy,plyer,setuptools --private ./Tside --package=com.teachconnect --name "Teachconnect" --version 1.1 --bootstrap=sdl2 --icon ./Tside/img/TC-T.png --window --arch=arm64-v8a --permission android.permission.WRITE_EXTERNAL_STORAGE --permission android.permission.INTERNET
+        p4a apk --requirements=python3,kivy,plyer,setuptools --private ./Tside --package=com.teachconnect --name "TeachConnect" --version 1.2 --bootstrap=sdl2 --icon ./Tside/img/TC-T.png --window --dist-name TeachConnect --presplash ./Tside/img/TC-T-presplash.png --presplash-color white --arch=arm64-v8a --permission android.permission.WRITE_EXTERNAL_STORAGE --permission android.permission.READ_EXTERNAL_STORAGE --permission android.permission.INTERNET --sign --release
 
     - name: Upload apk directory
       uses: actions/upload-artifact@main
       with:
         name: teachconnent
-        path: /home/runner/.local/share/python-for-android/dists/unnamed_dist_1/build/outputs/apk/debug/unnamed_dist_1-debug.apk
+        path: /home/runner/.local/share/python-for-android/dists/TeachConnect/build/outputs/apk/release/*
 
     - name: upload packages to release
       uses: softprops/action-gh-release@master
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 1.1
-        name: release 1.1
-        files: /home/runner/.local/share/python-for-android/dists/unnamed_dist_1/build/outputs/apk/debug/unnamed_dist_1-debug.apk
+        tag_name: v1.2
+        name: release 1.2
+        files: /home/runner/.local/share/python-for-android/dists/TeachConnect/build/outputs/apk/release/*
