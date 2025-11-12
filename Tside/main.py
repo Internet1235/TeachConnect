@@ -188,7 +188,7 @@ class MessagingScreen(BoxLayout):
         # 名称输入框：支持快捷选择和手动输入
         self.label_name = Label(text="名称:", halign="left", size_hint=(1, None), height=30)  # 靠左对齐
         self.name_spinner = Spinner(text="选择名称", values=[], size_hint=(1, None))  # 快捷选择
-        self.name_input = TextInput(hint_text="或手动输入名称", multiline=False, size_hint=(1, None))  # 手动输入
+        self.name_input = TextInput(hint_text="", multiline=False, size_hint=(1, None))  # 手动输入
         # 选择 spinner 时把完整名称填入手动输入框
         self.name_spinner.bind(text=self.on_name_selected)
         # 回车确认手动输入
@@ -197,7 +197,7 @@ class MessagingScreen(BoxLayout):
         # IP 输入框：支持快捷选择和手动输入
         self.label_ip = Label(text="服务器 IP:", halign="left", size_hint=(1, None), height=30)  # 靠左对齐
         self.ip_spinner = Spinner(text="选择 IP", values=[], size_hint=(1, None))  # 快捷选择，显示为 "备注 - IP"
-        self.ip_input = TextInput(hint_text="或手动输入 IP（可写入备注 - IP）", multiline=False, size_hint=(1, None))  # 手动输入
+        self.ip_input = TextInput(hint_text="", multiline=False, size_hint=(1, None))  # 手动输入
         # 选择 spinner 时把完整 "备注 - IP" 填入手动输入框
         self.ip_spinner.bind(text=self.on_ip_selected)
         # 回车确认手动输入
@@ -205,7 +205,7 @@ class MessagingScreen(BoxLayout):
 
         # 消息输入框
         self.label_message = Label(text="消息:", halign="left", size_hint=(1, None), height=30)  # 靠左对齐
-        self.message_input = TextInput(hint_text="输入消息", multiline=False)
+        self.message_input = TextInput(hint_text="", multiline=False)
 
         # 发送按钮
         self.send_button = Button(text="发送", on_press=self.send_message, font_name="Roboto")
