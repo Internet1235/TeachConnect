@@ -187,13 +187,21 @@ class MessagingScreen(BoxLayout):
 
         # 名称输入框：支持快捷选择和手动输入
         self.label_name = Label(text="名称:", halign="left", size_hint=(1, None), height=30)  # 靠左对齐
-        self.name_spinner = Spinner(text="选择名称", values=[], size_hint=(1, 0.2))  # 快捷选择
-        self.name_input = TextInput(hint_text="或手动输入名称", multiline=False)  # 手动输入
+        self.name_spinner = Spinner(text="选择名称", values=[], size_hint=(1, None))  # 快捷选择
+        self.name_input = TextInput(hint_text="或手动输入名称", multiline=False, size_hint=(1, None))  # 手动输入
+        # 选择 spinner 时把完整名称填入手动输入框
+        self.name_spinner.bind(text=self.on_name_selected)
+        # 回车确认手动输入
+        self.name_input.bind(on_text_validate=self.on_name_confirm)
 
         # IP 输入框：支持快捷选择和手动输入
         self.label_ip = Label(text="服务器 IP:", halign="left", size_hint=(1, None), height=30)  # 靠左对齐
-        self.ip_spinner = Spinner(text="选择 IP", values=[], size_hint=(1, 0.2))  # 快捷选择
-        self.ip_input = TextInput(hint_text="或手动输入 IP", multiline=False)  # 手动输入
+        self.ip_spinner = Spinner(text="选择 IP", values=[], size_hint=(1, None))  # 快捷选择，显示为 "备注 - IP"
+        self.ip_input = TextInput(hint_text="或手动输入 IP（可写入备注 - IP）", multiline=False, size_hint=(1, None))  # 手动输入
+        # 选择 spinner 时把完整 "备注 - IP" 填入手动输入框
+        self.ip_spinner.bind(text=self.on_ip_selected)
+        # 回车确认手动输入
+        self.ip_input.bind(on_text_validate=self.on_ip_confirm)
 
         # 消息输入框
         self.label_message = Label(text="消息:", halign="left", size_hint=(1, None), height=30)  # 靠左对齐
@@ -220,12 +228,11 @@ class MessagingScreen(BoxLayout):
         # 更新输入框的值
         self.update_inputs()
 
-        # 绑定 Spinner 的值变化事件
-        self.name_spinner.bind(text=self.on_name_selected)
-        self.ip_spinner.bind(text=self.on_ip_selected)
-
         # 设置默认值
         self.set_default_inputs()
+
+        # 保存当前选中的带备注 IP（格式 "备注 - IP"），用于发送后恢复
+        self.selected_ip = None
 
     def update_inputs(self):
         """更新名称和IP输入框的值"""
@@ -239,11 +246,8 @@ class MessagingScreen(BoxLayout):
             self.name_input.text = self.name_spinner.text
         if self.ip_spinner.values:
             self.ip_spinner.text = self.ip_spinner.values[0]
-            try:
-                note, ip = self.ip_spinner.text.split(" - ", 1)
-                self.ip_input.text = ip
-            except ValueError:
-                self.ip_input.text = self.ip_spinner.text
+            # ip_spinner 的文本为 "备注 - IP"，直接填入 ip_input 保留备注格式（用户可编辑）
+            self.ip_input.text = self.ip_spinner.text
 
     def on_name_selected(self, spinner, text):
         """当选择名称时，将值填入手动输入框"""
@@ -251,16 +255,48 @@ class MessagingScreen(BoxLayout):
 
     def on_ip_selected(self, spinner, text):
         """当选择 IP 时，将值填入手动输入框"""
-        try:
-            note, ip = text.split(" - ", 1)
-            self.ip_input.text = ip
-        except ValueError:
-            self.ip_input.text = text  # 如果没有备注，直接使用 IP
+        # Spinner 显示为 "备注 - IP"，直接填入编辑框，保留备注与 IP
+        self.ip_input.text = text
+
+    def on_name_confirm(self, instance):
+        """处理名称输入框的确认事件"""
+        text = self.name_input.text.strip()
+        if text and text not in self.recent_names:
+            self.recent_names[text] = True
+            save_recent_data(NAME_STORAGE_FILE, self.recent_names)
+            self.update_inputs()
+
+    def on_ip_confirm(self, instance):
+        """处理 IP 输入框的确认事件"""
+        text = self.ip_input.text.strip()
+        if text and text not in self.recent_ips:
+            # 尝试分离备注和 IP（优先 "备注 - IP"）
+            try:
+                note, ip = text.split(" - ", 1)
+                note = note.strip(); ip = ip.strip()
+                self.recent_ips[ip] = note
+            except ValueError:
+                # 允许用户只输入 "备注-IP"（无空格）或只输入 IP；若含单短横线自动修正
+                try:
+                    note, ip = text.split("-", 1)
+                    note = note.strip(); ip = ip.strip()
+                    self.recent_ips[ip] = note
+                    # 自动把编辑框标准化为 "备注 - IP"
+                    self.ip_input.text = f"{note} - {ip}"
+                except ValueError as e:
+                    log_error(e)
+                    try:
+                        note, ip = text.split(" - ", 1)
+                    except ValueError :
+                        self.show_popup("错误", "IP 格式无效！")
+                        return
+            save_recent_data(IP_STORAGE_FILE, self.recent_ips)
+            self.update_inputs()
 
     def send_message(self, instance):
         # 获取名称和 IP，优先使用手动输入的值
-        name = self.name_input.text.strip() or self.name_spinner.text.strip()
-        ip_with_note = self.ip_input.text.strip() or self.ip_spinner.text.strip()
+        name = self.name_input.text.strip() or (self.name_spinner.text.strip() if hasattr(self, 'name_spinner') else "")
+        ip_with_note = self.ip_input.text.strip() or (self.ip_spinner.text.strip() if hasattr(self, 'ip_spinner') else "")
         message = self.message_input.text.strip()
 
         # 检查必要字段是否填写
@@ -271,9 +307,18 @@ class MessagingScreen(BoxLayout):
         # 从 "备注 - IP" 格式中分离出备注和 IP
         try:
             note, ip = ip_with_note.split(" - ", 1)
-        except ValueError:
-            ip = ip_with_note  # 如果没有备注，直接使用 IP
-            note = "备注"
+        except ValueError as e:
+                log_error(e)
+                try:
+            # 若用户输入为 "备注-IP"（无空格），尝试自动修正为 "备注 - IP"
+                    note, ip = ip_with_note.split("-", 1)
+                    self.ip_input.text = ip_with_note
+                except ValueError:
+                    self.show_popup("错误", "IP 格式无效！")
+                    return
+
+        # 保存当前选中的带备注字符串，后续恢复时使用
+        self.selected_ip = ip_with_note
 
         # 保存最近使用的名称
         if name not in self.recent_names:
@@ -281,9 +326,8 @@ class MessagingScreen(BoxLayout):
             save_recent_data(NAME_STORAGE_FILE, self.recent_names)
 
         # 保存最近使用的 IP
-        if ip not in self.recent_ips:
-            self.recent_ips[ip] = note
-            save_recent_data(IP_STORAGE_FILE, self.recent_ips)
+        self.recent_ips[ip] = note
+        save_recent_data(IP_STORAGE_FILE, self.recent_ips)
 
         # 更新输入框的值
         self.update_inputs()
@@ -305,6 +349,15 @@ class MessagingScreen(BoxLayout):
         except Exception as e:
             log_error(f"发送失败: {e}")
             self.show_popup("发送失败", f"发送失败：请检查网络连接或目标教室未启动程序\n错误信息: {e}")
+
+        # 重新加载 IP 并保持之前选中的 IP
+        self.recent_ips = load_recent_data(IP_STORAGE_FILE)
+        self.update_inputs()
+
+        # 恢复之前选中的 IP（直接写回文本框）
+        if self.selected_ip:
+            # ip_input 是 TextInput，直接恢复带备注的字符串
+            self.ip_input.text = self.selected_ip
 
     def show_popup(self, title, message):
         popup = Popup(
